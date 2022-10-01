@@ -60,7 +60,8 @@
   line-height: 17px;
   color: #000;
   border: none;
-  border-bottom: 1px solid #e8e8e8;
+  border-radius: 8px;
+  background-color: #F9F9F9;
 }
 
 .register__form-input_err {

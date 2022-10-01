@@ -28,12 +28,12 @@ function SearchForm({ handleSearch }) {
             value={inputValue}
             required
           />
-        </label>
-        <button
+          <button
           className="search-form__button"
           type="submit"
           aria-label="Искать"
-        />
+          />
+        </label>
       </div>
       <label className="search-form__checkbox" htmlFor="shorts">
         <FilterCheckbox value={shorts} onChange={handleSwitcher} />

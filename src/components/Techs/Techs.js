@@ -4,7 +4,7 @@ import HeaderAbout from "../HeaderAbout/HeaderAbout";
 
 function Techs() {
   return (
-    <div className="techs">
+    <section className="techs">
       <HeaderAbout text="Технологии" />
       <div className="techs__content">
         <h2 className="techs__header">7 технологий</h2>
@@ -22,7 +22,7 @@ function Techs() {
           <li className="techs__list-item">mongoDB</li>
         </ul>
       </div>
-    </div>
+    </section>
   );
 }
 

@@ -41,6 +41,7 @@
 
 .promo__img {
   margin: 75px 70px 90px;
+  overflow: hidden;
 }
 
 .promo__nav-text {
