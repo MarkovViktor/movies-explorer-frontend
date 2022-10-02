@@ -2,17 +2,19 @@ import React, { useState } from "react";
 import logo from "../../images/logo-header.svg";
 import account from "../../images/account-header.svg";
 import burger from "../../images/burger.svg";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import MobileMenu from "../MobileMenu/MobileMenu";
 import "./Header.css";
 
 function Header({ loggedIn }) {
+  const path = useLocation();
+  const headerBackground = () => path.pathname === '/' ? 'header' : 'header__main';
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   function handleBurgerClick() {
     setIsMenuOpen(!isMenuOpen);
   }
   return (
-    <header className="header">
+    <header className={headerBackground()}>
       <Link to="/">
         <img src={logo} alt="Логотип" className="header__logo" />
       </Link>
@@ -33,7 +35,7 @@ function Header({ loggedIn }) {
               </li>
               <li className="header__nav-item">
                 <NavLink to="/saved-movies" className="header__nav-link">
-                  Сохраненные фильмы
+                  Сохраненные&nbsp;фильмы
                 </NavLink>
               </li>
             </ul>

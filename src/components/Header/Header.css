@@ -2,6 +2,16 @@
   display: flex;
   justify-content: space-between;
   padding: 18px 70px;
+  background-color: #465DFF;
+  gap: 44px;
+}
+
+.header__main {
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 70px;
+  background-color: #FFFFFF;
+  gap: 44px;
 }
 
 .header__logo:hover {
@@ -102,15 +112,45 @@
   }
 }
 
+@media screen and ( max-width: 1144px ) {
+  .header__login {
+    gap: 550px;
+  }
+}
+
 @media screen and ( max-width: 1078px ) {
   .header__login {
     gap: 500px;
   }
 }
 
+@media screen and ( max-width: 1040px ) {
+  .header__login {
+    gap: 450px;
+  }
+}
+
 @media screen and ( max-width: 1000px ) {
   .header__login {
     gap: 400px;
+  }
+}
+
+@media screen and ( max-width: 940px ) {
+  .header__login {
+    gap: 350px;
+  }
+}
+
+@media screen and ( max-width: 890px ) {
+  .header__login {
+    gap: 300px;
+  }
+}
+
+@media screen and ( max-width: 840px ) {
+  .header__login {
+    gap: 250px;
   }
 }
 
