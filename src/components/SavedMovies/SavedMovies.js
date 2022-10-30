@@ -1,51 +1,127 @@
-import React from "react";
 import "./SavedMovies.css";
-import ShowButMore from "../ShowButMore/ShowButMore";
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
+import { useEffect, useState } from "react";
 import SearchForm from "../SearchForm/SearchForm";
 import MoviesCardList from "../MoviesCardList/MoviesCardList";
-import Pic1 from "../../images/pic__COLOR_pic.svg";
-import Pic2 from "../../images/pic__COLOR_pic2.svg";
-import Pic3 from "../../images/pic__COLOR_pic3.svg";
+import Preloader from "../Preloader/Preloader";
+import mainApi from "../../utils/MainApi.js";
 
-function Movies() {
-  const MOVIES_CARDS = [
-    {
-      img: Pic1,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-      deleteFilm: true,
-    },
+const SavedMovies = ({ openPopup }) => {
+  const [films, setFilms] = useState(null);
+  const [preloader, setPreloader] = useState(false);
+  const [errorText, setErrorText] = useState("");
+  const [filmsTumbler, setFilmsTumbler] = useState(false);
+  const [filmsInputSearch, setFilmsInputSearch] = useState("");
+  const [filmsShowed, setFilmsShowed] = useState([]);
+  const [filmsShowedWithTumbler, setFilmsShowedWithTumbler] = useState([]);
+  const [filmsWithTumbler, setFilmsWithTumbler] = useState([]);
 
-    {
-      img: Pic2,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-      deleteFilm: true,
-    },
+  async function handleGetMoviesTumbler(tumbler) {
+    let filterDataShowed = [];
+    let filterData = [];
 
-    {
-      img: Pic3,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-      deleteFilm: true,
-    },
-  ];
+    if (tumbler) {
+      setFilmsShowedWithTumbler(filmsShowed);
+      setFilmsWithTumbler(films);
+      filterDataShowed = filmsShowed.filter(({ duration }) => duration <= 40);
+      filterData = films.filter(({ duration }) => duration <= 40);
+    } else {
+      filterDataShowed = filmsShowedWithTumbler;
+      filterData = filmsWithTumbler;
+    }
+    setFilmsShowed(filterDataShowed);
+    setFilms(filterData);
+  }
+
+  async function handleGetMovies(inputSearch, tumbler) {
+    setErrorText("");
+    setPreloader(true);
+
+    try {
+      const data = films;
+      let filterData = data.filter(({ nameRU }) =>
+        nameRU.toLowerCase().includes(inputSearch.toLowerCase())
+      );
+
+      if (tumbler)
+        filterData = filterData.filter(({ duration }) => duration <= 40);
+
+      setFilmsShowed(filterData);
+  } catch (err) {
+      setErrorText(
+        "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
+      );
+      setFilms([]);
+    } finally {
+      setPreloader(false);
+    }
+  }
+
+  async function savedMoviesToggle(film, favorite) {
+    if (!favorite) {
+      try {
+        await mainApi.deleteMovies(film._id);
+        const newFilms = await mainApi.getMovies();
+        setFilmsShowed(newFilms);
+        setFilms(newFilms);
+      } catch (err) {
+        openPopup("Во время удаления фильма произошла ошибка.");
+      }
+    }
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    async function check() {
+    const localStorageFilms = localStorage.getItem("savedFilms");
+    if (localStorageFilms) {
+      setFilms(JSON.parse(localStorageFilms));
+      const localStorageFilmsTumbler =
+        localStorage.getItem("savedFilmsTumbler");
+      const localStorageFilmsInputSearch = localStorage.getItem(
+        "savedFilmsInputSearch"
+      );
+
+      if (localStorageFilmsTumbler) {
+        setFilmsTumbler(localStorageFilmsTumbler === "true");
+      }
+      if (localStorageFilmsInputSearch) {
+        setFilmsInputSearch(localStorageFilmsInputSearch);
+      }
+    } else {
+      try {
+        const data = await mainApi.getMovies();
+        setFilms(data);
+        setFilmsShowed(data);
+      } catch (err) {
+        openPopup(`Ошибка сервера ${err}`);
+      }
+    }}
+    check()
+  }, [openPopup]);
+
   return (
     <div className="saved-movies">
-      <Header loggedIn={true} />
       <main>
-        <SearchForm />
-        <MoviesCardList data={MOVIES_CARDS} />
-        <ShowButMore />
+        <SearchForm
+          handleGetMovies={handleGetMovies}
+          filmsTumbler={filmsTumbler}
+          filmsInputSearch={filmsInputSearch}
+          handleGetMoviesTumbler={handleGetMoviesTumbler}
+        />
+        {preloader && <Preloader />}
+        {errorText && (
+          <div className="saved-movies__text-error">{errorText}</div>
+        )}
+        {!preloader && !errorText && films !== null && (
+          <MoviesCardList
+            filmsRemains={[]}
+            savedMoviesToggle={savedMoviesToggle}
+            films={filmsShowed}
+          />
+        )}
       </main>
-      <Footer />
     </div>
   );
-}
+};
 
-export default Movies;
+export default SavedMovies;

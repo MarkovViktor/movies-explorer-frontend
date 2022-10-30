@@ -1,140 +1,209 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Movies.css";
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
 import SearchForm from "../SearchForm/SearchForm";
 import MoviesCardList from "../MoviesCardList/MoviesCardList";
-import ShowButMore from "../ShowButMore/ShowButMore";
-import Pic1 from "../../images/pic__COLOR_pic.svg";
-import Pic2 from "../../images/pic__COLOR_pic2.svg";
-import Pic3 from "../../images/pic__COLOR_pic3.svg";
-import Pic4 from "../../images/pic__COLOR_pic4.svg";
-import Pic5 from "../../images/pic__COLOR_pic5.svg";
-import Pic6 from "../../images/pic__COLOR_pic6.svg";
-import Pic7 from "../../images/pic__COLOR_pic7.svg";
-import Pic8 from "../../images/pic__COLOR_pic8.svg";
-import Pic9 from "../../images/pic__COLOR_pic9.svg";
-import Pic10 from "../../images/pic__COLOR_pic10.svg";
-import Pic11 from "../../images/pic__COLOR_pic11.svg";
-import Pic12 from "../../images/pic__COLOR_pic12.svg";
-import Pic13 from "../../images/pic__COLOR_pic13.svg";
-import Pic14 from "../../images/pic__COLOR_pic14.svg";
-import Pic15 from "../../images/pic__COLOR_pic15.svg";
-import Pic16 from "../../images/pic__COLOR_pic16.svg";
+import Preloader from "../Preloader/Preloader";
+import moviesApi from "../../utils/MoviesApi";
+import mainApi from "../../utils/MainApi.js";
 
-function Movies() {
-  const MOVIES_CARDS = [
-    {
-      img: Pic1,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
+const Movies = ({ openPopup }) => {
+  const [films, setFilms] = useState(null);
+  const [filmsSaved, setFilmsSaved] = useState(null);
+  const [preloader, setPreloader] = useState(false);
+  const [errorText, setErrorText] = useState("");
+  const [filmsTumbler, setFilmsTumbler] = useState(false);
+  const [filmsInputSearch, setFilmsInputSearch] = useState("");
+  const [MoviesCount, setMoviesCount] = useState([]);
+  const [filmsShowed, setFilmsShowed] = useState(null);
+  const [filmsWithTumbler, setFilmsWithTumbler] = useState([]);
+  const [filmsShowedWithTumbler, setFilmsShowedWithTumbler] = useState([]);
 
-    {
-      img: Pic2,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
+  useEffect(() => {
+    setMoviesCount(getMoviesCount());
+    const handlerResize = () => setMoviesCount(getMoviesCount());
+    window.addEventListener("resize", handlerResize);
 
-    {
-      img: Pic3,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
+    return () => {
+      window.removeEventListener("resize", handlerResize);
+    };
+  }, []);
 
-    {
-      img: Pic4,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
+  function getMoviesCount() {
+    let countCards;
+    const clientWidth = document.documentElement.clientWidth;
+    const MoviesCountConfig = {
+      1200: [12, 4],
+      900: [9, 3],
+      768: [8, 2],
+      240: [5, 2],
+    };
 
-    {
-      img: Pic5,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
+    Object.keys(MoviesCountConfig)
+      .sort((a, b) => a - b)
+      .forEach((key) => {
+        if (clientWidth > +key) {
+          countCards = MoviesCountConfig[key];
+        }
+      });
 
-    {
-      img: Pic6,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic7,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic8,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic9,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic10,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic11,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic12,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic13,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic14,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic15,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-    {
-      img: Pic16,
-      title: "33 слова о дизайне",
-      duration: "1ч42м",
-      isShortFilm: false,
-    },
-  ];
+    return countCards;
+  }
+
+  function handleMore() {
+    const spliceFilms = films;
+    const newFilmsShowed = filmsShowed.concat(
+      spliceFilms.splice(0, MoviesCount[1])
+    );
+    setFilmsShowed(newFilmsShowed);
+    setFilms(spliceFilms);
+  }
+
+  async function handleGetMovies(inputSearch) {
+    setFilmsTumbler(false);
+    localStorage.setItem("filmsTumbler", false);
+
+    if (!inputSearch) {
+      setErrorText("Нужно ввести ключевое слово");
+      return false;
+    }
+
+    setErrorText("");
+    setPreloader(true);
+
+    try {
+      const data = await moviesApi.getMovies();
+      let filterData = data.filter(({ nameRU }) =>
+        nameRU.toLowerCase().includes(inputSearch.toLowerCase())
+      );
+      localStorage.setItem("films", JSON.stringify(filterData));
+      localStorage.setItem("filmsInputSearch", inputSearch);
+
+      const spliceData = filterData.splice(0, MoviesCount[0]);
+      setFilmsShowed(spliceData);
+      setFilms(filterData);
+      setFilmsShowedWithTumbler(spliceData);
+      setFilmsWithTumbler(filterData);
+    } catch (err) {
+      setErrorText(
+        "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
+      );
+
+      setFilms([]);
+      localStorage.removeItem("films");
+      localStorage.removeItem("filmsTumbler");
+      localStorage.removeItem("filmsInputSearch");
+    } finally {
+      setPreloader(false);
+    }
+  }
+
+  async function handleGetMoviesTumbler(tumbler) {
+    let filterDataShowed = [];
+    let filterData = [];
+
+    if (tumbler) {
+      setFilmsShowedWithTumbler(filmsShowed);
+      setFilmsWithTumbler(films);
+      filterDataShowed = filmsShowed.filter(({ duration }) => duration <= 40);
+      filterData = films.filter(({ duration }) => duration <= 40);
+    } else {
+      filterDataShowed = filmsShowedWithTumbler;
+      filterData = filmsWithTumbler;
+    }
+    setFilmsShowed(filterDataShowed);
+    setFilms(filterData);
+  }
+
+  async function savedMoviesToggle(film, favorite) {
+    if (favorite) {
+      const objFilm = {
+        image: "https://api.nomoreparties.co" + film.image.url,
+        trailerLink: film.trailerLink,
+        thumbnail: "https://api.nomoreparties.co" + film.image.url,
+        movieId: film.id,
+        country: film.country || "Неизвестно",
+        director: film.director,
+        duration: film.duration,
+        year: film.year,
+        description: film.description,
+        nameRU: film.nameRU,
+        nameEN: film.nameEN,
+      };
+      try {
+        await mainApi.addMovies(objFilm);
+        const newSaved = await mainApi.getMovies();
+        setFilmsSaved(newSaved);
+      } catch (err) {
+        openPopup("Во время добавления фильма произошла ошибка.");
+      }
+    } else {
+      try {
+        await mainApi.deleteMovies(film._id);
+        const newSaved = await mainApi.getMovies();
+        setFilmsSaved(newSaved);
+      } catch (err) {
+        openPopup("Во время удаления фильма произошла ошибка.");
+      }
+    }
+  }
+
+  useEffect(() => {
+    mainApi
+      .getMovies()
+      .then((data) => {
+        setFilmsSaved(data);
+      })
+      .catch((err) => {
+        openPopup(`Ошибка сервера ${err}`);
+      });
+
+    const localStorageFilms = localStorage.getItem("films");
+
+    if (localStorageFilms) {
+      const filterData = JSON.parse(localStorageFilms);
+      setFilmsShowed(filterData.splice(0, getMoviesCount()[0]));
+      setFilms(filterData);
+      setPreloader(false);
+    }
+
+    const localStorageFilmsTumbler = localStorage.getItem("filmsTumbler");
+    const localStorageFilmsInputSearch =
+      localStorage.getItem("filmsInputSearch");
+
+    if (localStorageFilmsTumbler) {
+      setFilmsTumbler(localStorageFilmsTumbler === "true");
+    }
+
+    if (localStorageFilmsInputSearch) {
+      setFilmsInputSearch(localStorageFilmsInputSearch);
+    }
+  }, [openPopup]);
+
   return (
     <div className="movies">
-      <Header loggedIn={true} />
       <main>
-        <SearchForm />
-        <MoviesCardList data={MOVIES_CARDS} />
-        <ShowButMore />
+        <SearchForm
+          handleGetMovies={handleGetMovies}
+          filmsTumbler={filmsTumbler}
+          filmsInputSearch={filmsInputSearch}
+          handleGetMoviesTumbler={handleGetMoviesTumbler}
+        />
+        {preloader && <Preloader />}
+        {errorText && <div className="movies__text-error">{errorText}</div>}
+        {!preloader &&
+          !errorText &&
+          films !== null &&
+          filmsSaved !== null &&
+          filmsShowed !== null && (
+            <MoviesCardList
+              handleMore={handleMore}
+              filmsRemains={films}
+              films={filmsShowed}
+              savedMoviesToggle={savedMoviesToggle}
+              filmsSaved={filmsSaved}
+            />
+          )}
       </main>
-      <Footer />
     </div>
   );
 }
