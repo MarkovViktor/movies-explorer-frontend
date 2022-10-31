@@ -4,4 +4,4 @@
 
 * [Pull request](https://github.com/MarkovViktor/movies-explorer-frontend/pull/1)
 
-* [Project](https://github.com/MarkovViktor/movies-explorer-frontend/pull/1)
+* [Project](https://markovproject.nomoredomains.sbs/movies)
