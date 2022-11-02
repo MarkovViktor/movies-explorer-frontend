@@ -16,6 +16,15 @@
   font-family: 'inter';
   font-size: 15px;
   font-weight: 500;
+}
+
+.movies__text-error {
+  display: flex;
+  justify-content: center;
+  margin: 10px auto;
+  font-family: 'inter';
+  font-size: 15px;
+  font-weight: 500;
 
 }
 
