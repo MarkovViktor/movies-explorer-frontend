@@ -25,8 +25,17 @@ const SavedMovies = ({ openPopup }) => {
       filterDataShowed = filmsShowed.filter(({ duration }) => duration <= 40);
       filterData = films.filter(({ duration }) => duration <= 40);
     } else {
-      filterDataShowed = filmsShowedWithTumbler;
-      filterData = filmsWithTumbler;
+      try {
+        const dataShowed = await mainApi.getMovies();
+        const dataFilter = await mainApi.getMovies();
+        filterDataShowed = dataShowed;
+        filterData = dataFilter;
+        console.log(filmsShowedWithTumbler)
+        console.log(filmsWithTumbler)
+      }
+      catch (err) {
+        openPopup(`Ошибка сервера ${err}`);
+      }
     }
     setFilmsShowed(filterDataShowed);
     setFilms(filterData);
@@ -44,7 +53,6 @@ const SavedMovies = ({ openPopup }) => {
 
       if (tumbler)
         filterData = filterData.filter(({ duration }) => duration <= 40);
-
       setFilmsShowed(filterData);
   } catch (err) {
       setErrorText(
@@ -56,13 +64,26 @@ const SavedMovies = ({ openPopup }) => {
     }
   }
 
+  async function deleteFilms() {
+    localStorage.getItem('tumbler');
+    const newFilms = await mainApi.getMovies();
+    const shortFilms = newFilms.filter(({ duration }) => duration <= 40);
+    const tumblerFilms = localStorage.getItem('tumbler')
+    if (tumblerFilms === "false") {
+      setFilmsShowed(shortFilms);
+      setFilms(newFilms);
+    } else if (tumblerFilms === "true") {
+      setFilmsShowed(newFilms);
+      setFilms(newFilms);
+    }
+  } 
+
   async function savedMoviesToggle(film, favorite) {
     if (!favorite) {
       try {
+        localStorage.getItem('tumbler');
         await mainApi.deleteMovies(film._id);
-        const newFilms = await mainApi.getMovies();
-        setFilmsShowed(newFilms);
-        setFilms(newFilms);
+        deleteFilms()
       } catch (err) {
         openPopup("Во время удаления фильма произошла ошибка.");
       }

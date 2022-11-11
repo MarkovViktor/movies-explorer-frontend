@@ -2,17 +2,19 @@ import './SearchForm.css';
 import { useEffect, useState } from 'react';
 import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
 
-const SearchForm = ({ handleGetMovies, filmsTumbler, filmsInputSearch, handleGetMoviesTumbler }) => {
+const SearchForm = ({ handleGetMovies, getFilms, filmsTumbler, filmsInputSearch, handleGetMoviesTumbler }) => {
   const [inputSearch, setInputSearch] = useState('');
   const [tumbler, setTumbler] = useState(false);
 
   function handleInputChange(evt) {
+    getFilms();
     setInputSearch(evt.target.value);
   }
 
   function handleTumblerChange(evt) {
     const newTumbler = !tumbler;
     setTumbler(newTumbler);
+    localStorage.setItem('tumbler', tumbler);
     handleGetMoviesTumbler(newTumbler);
   }
 

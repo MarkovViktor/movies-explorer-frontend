@@ -29,12 +29,12 @@ function Header({ loggedIn }) {
           <nav className="header__login">
             <ul className="header__nav-login">
               <li className="header__nav-item">
-                <NavLink to="/movies" className="header__nav-link">
+                <NavLink to="/movies" className="header__nav-link" activeClassName="header__link_active">
                   Фильмы
                 </NavLink>
               </li>
               <li className="header__nav-item">
-                <NavLink to="/saved-movies" className="header__nav-link">
+                <NavLink to="/saved-movies" className="header__nav-link" activeClassName="header__link_active">
                   Сохраненные&nbsp;фильмы
                 </NavLink>
               </li>

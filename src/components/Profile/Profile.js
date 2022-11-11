@@ -54,7 +54,7 @@ function Profile({ onSignOut, openPopup }) {
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    mainApi.updateUser({ name, email }).then(() => {
+    mainApi.updateUserInfo({ name, email }).then(() => {
       setName(name);
       setEmail(email);
       openPopup('Данные успешно изменены!');
