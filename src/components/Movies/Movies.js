@@ -74,7 +74,7 @@ const Movies = ({ openPopup }) => {
           .finally(() => {
             setPreloader(false);
           })
-      }, 2000);
+      }, 500);
       return () => clearTimeout(timer);
     } else if (localStorage.getItem('allMovies')) {
       const loadedMovies = JSON.parse(localStorage.getItem('allMovies'))

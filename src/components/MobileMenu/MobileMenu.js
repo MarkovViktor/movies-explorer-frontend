@@ -23,7 +23,7 @@ function MobileMenu({ isMenuOpen, handleBurgerClick }) {
           />
           <ul className="mobile-menu__list">
             <li className="mobile-menu__item">
-              <NavLink exact to="/" className="mobile-menu__link" activeClassName="mobile-menu__link_active" >
+              <NavLink exact to="/" className="mobile-menu__link" activeClassName="mobile-menu__link_active" onClick={handleClickLink} > 
                 Главная
               </NavLink>
             </li>
