@@ -9,7 +9,7 @@ const SavedMovies = ({ openPopup }) => {
   const [films, setFilms] = useState(null);
   const [preloader, setPreloader] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const [filmsTumbler, setFilmsTumbler] = useState(false);
+  const [tumbler, setTumbler] = useState(false);
   const [filmsInputSearch, setFilmsInputSearch] = useState("");
   const [filmsShowed, setFilmsShowed] = useState([]);
   const [filmsShowedWithTumbler, setFilmsShowedWithTumbler] = useState([]);
@@ -41,7 +41,7 @@ const SavedMovies = ({ openPopup }) => {
     setFilms(filterData);
   }
 
-  async function handleGetMovies(inputSearch, tumbler) {
+  async function handleGetMovies(inputSearch) {
     setErrorText("");
     setPreloader(true);
 
@@ -96,15 +96,11 @@ const SavedMovies = ({ openPopup }) => {
     const localStorageFilms = localStorage.getItem("savedFilms");
     if (localStorageFilms) {
       setFilms(JSON.parse(localStorageFilms));
-      const localStorageFilmsTumbler =
-        localStorage.getItem("savedFilmsTumbler");
+      
       const localStorageFilmsInputSearch = localStorage.getItem(
         "savedFilmsInputSearch"
       );
 
-      if (localStorageFilmsTumbler) {
-        setFilmsTumbler(localStorageFilmsTumbler === "true");
-      }
       if (localStorageFilmsInputSearch) {
         setFilmsInputSearch(localStorageFilmsInputSearch);
       }
@@ -125,9 +121,7 @@ const SavedMovies = ({ openPopup }) => {
       <main>
         <SearchForm
           handleGetMovies={handleGetMovies}
-          filmsTumbler={filmsTumbler}
           filmsInputSearch={filmsInputSearch}
-          handleGetMoviesTumbler={handleGetMoviesTumbler}
         />
         {preloader && <Preloader />}
         {errorText && (

@@ -11,13 +11,14 @@ const Movies = ({ openPopup }) => {
   const [filmsSaved, setFilmsSaved] = useState(null);
   const [preloader, setPreloader] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const [filmsTumbler, setFilmsTumbler] = useState(false);
+  const [filmsTumbler, setFilmsTumbler] = useState(localStorage.getItem('filmsTumbler'));
   const [filmsInputSearch, setFilmsInputSearch] = useState("");
   const [MoviesCount, setMoviesCount] = useState([]);
   const [filmsShowed, setFilmsShowed] = useState(null);
   const [filmsWithTumbler, setFilmsWithTumbler] = useState([]);
   const [filmsShowedWithTumbler, setFilmsShowedWithTumbler] = useState([]);
   const [allMovies, setAllMovies] = useState([]);
+  const [tumbler, setTumbler] = useState(localStorage.getItem('tumbler'));
 
   useEffect(() => {
     setMoviesCount(getMoviesCount());
@@ -59,27 +60,39 @@ const Movies = ({ openPopup }) => {
     setFilms(spliceFilms);
   }
 
-  function getFilms() {
-    if (!localStorage.getItem('allMovies')) {
+  async function getFilms(inputSearch) {
+    const allMoviesStorage = localStorage.getItem('allMovies');
+    if (!allMoviesStorage) {
       setPreloader(true);
-      const timer = setTimeout(() => {
-        moviesApi.getMovies()
-          .then((downloadedFilms) => {
-            setAllMovies(downloadedFilms);
-            localStorage.setItem('allMovies', JSON.stringify(downloadedFilms))
-          })
-          .catch((err) => {
-            console.log(err);
-          })
-          .finally(() => {
-            setPreloader(false);
-          })
-      }, 500);
-      return () => clearTimeout(timer);
-    } else if (localStorage.getItem('allMovies')) {
-      const loadedMovies = JSON.parse(localStorage.getItem('allMovies'))
-      setAllMovies(loadedMovies)
+      moviesApi.getMovies()
+        .then((downloadedFilms) => {
+          setAllMovies(downloadedFilms);
+          localStorage.setItem('allMoviesStorage', JSON.stringify(downloadedFilms))
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+    } else {
+      const loadedMovies = JSON.parse(localStorage.getItem('allMoviesStorage'))
+      setAllMovies(loadedMovies);
     }
+    
+    setTimeout(() => {
+      const dataSort = JSON.parse(localStorage.getItem('allMoviesStorage')).sort((a, b) => a.duration - b.duration);
+      let filterData = dataSort.filter(({ nameRU }) =>
+        nameRU.toLowerCase().includes(inputSearch.toLowerCase())
+      );
+      localStorage.setItem("films", JSON.stringify(filterData));
+      localStorage.setItem("filmsInputSearch", inputSearch);
+      // localStorage.setItem("filmsTumbler", filmsTumbler);
+
+      const spliceData = filterData.splice(0, MoviesCount[0]);
+      setFilmsShowed(spliceData);
+      setFilms(filterData);
+      setFilmsShowedWithTumbler(spliceData);
+      setFilmsWithTumbler(filterData);
+      setPreloader(false);
+    },2000);
   }
 
   async function handleGetMovies(inputSearch) {
@@ -89,32 +102,27 @@ const Movies = ({ openPopup }) => {
     }
     setErrorText("");
     setPreloader(true);
-    try {
-      const data = JSON.parse(localStorage.getItem('allMovies'));
-      console.log(allMovies);
-      const dataSort = data.sort((a, b) => a.duration - b.duration);
-      let filterData = dataSort.filter(({ nameRU }) =>
-        nameRU.toLowerCase().includes(inputSearch.toLowerCase())
-      );
-      localStorage.setItem("films", JSON.stringify(filterData));
-      localStorage.setItem("filmsInputSearch", inputSearch);
 
-      const spliceData = filterData.splice(0, MoviesCount[0]);
-      setFilmsShowed(spliceData);
-      setFilms(filterData);
-      setFilmsShowedWithTumbler(spliceData);
-      setFilmsWithTumbler(filterData);
-    } catch (err) {
-      setErrorText(
-        "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
-      );
-      setFilms([]);
-      localStorage.removeItem("films");
-      localStorage.removeItem("filmsTumbler");
-      localStorage.removeItem("filmsInputSearch");
-    } finally {
-      setPreloader(false);
-    }
+      console.log('1', allMovies)
+
+
+
+
+      // setErrorText(
+      //   "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
+      // );
+      // setFilms([]);
+      // localStorage.removeItem("films");
+      // localStorage.removeItem("filmsTumbler");
+
+      // setPreloader(false);
+
+  }
+
+  function handleTumblerChange(evt) {
+      const newTumbler = !tumbler;
+      setTumbler(newTumbler);
+      handleGetMoviesTumbler(newTumbler);
   }
 
   //ручка получения короткометражек.
@@ -127,7 +135,11 @@ const Movies = ({ openPopup }) => {
       setFilmsWithTumbler(films);
       filterDataShowed = filmsShowed.filter(({ duration }) => duration <= 40);
       filterData = films.filter(({ duration }) => duration <= 40);
+      localStorage.setItem('tumbler', tumbler);
+      localStorage.setItem('filmsTumbler', filmsTumbler);
     } else {
+      localStorage.removeItem('filmsTumbler');
+      localStorage.removeItem('tumbler');
       filterDataShowed = filmsShowedWithTumbler;
       filterData = filmsWithTumbler;
     }
@@ -184,12 +196,9 @@ const Movies = ({ openPopup }) => {
       setFilms(filterData);
       setPreloader(false);
     }
-    const localStorageFilmsTumbler = localStorage.getItem("filmsTumbler");
+
     const localStorageFilmsInputSearch =
       localStorage.getItem("filmsInputSearch");
-    if (localStorageFilmsTumbler) {
-      setFilmsTumbler(localStorageFilmsTumbler === "true");
-    }
     if (localStorageFilmsInputSearch) {
       setFilmsInputSearch(localStorageFilmsInputSearch);
     }
@@ -199,11 +208,12 @@ const Movies = ({ openPopup }) => {
     <div className="movies">
       <main>
         <SearchForm
-          getFilms={getFilms}
+          handleTumblerChange={handleTumblerChange}
           handleGetMovies={handleGetMovies}
           filmsTumbler={filmsTumbler}
+          setFilmsTumbler={setFilmsTumbler}
+          getFilms={getFilms}
           filmsInputSearch={filmsInputSearch}
-          handleGetMoviesTumbler={handleGetMoviesTumbler}
         />
         {preloader && <Preloader />}
         {errorText && <div className="movies__text-error">{errorText}</div>}
