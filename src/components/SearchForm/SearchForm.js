@@ -1,35 +1,37 @@
 import './SearchForm.css';
 import { useEffect, useState } from 'react';
 import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
+import {
+  Route,
+  Switch,
+  useLocation,
+  useHistory,
+  withRouter,
+  Redirect,
+} from "react-router-dom";
 
-const SearchForm = ({ handleGetMovies, handleTumblerChange, getFilms, filmsTumbler, filmsInputSearch }) => {
+const SearchForm = ({ tumbler, setTumbler, getFilms, filmsTumbler, filmsInputSearch }) => {
   const [inputSearch, setInputSearch] = useState('');
+  const { path } = useLocation;
 
   function handleInputChange(evt) {
     setInputSearch(evt.target.value);
   }
 
-  // function handleTumblerChange(evt) {
-  //   localStorage.setItem('filmsTumbler', filmsTumbler);
-  // }
-
-  // function selectPage() {
-  //   if (pathname === "/movies") {
-
-  //   } else {
-
-  //   }
-  // }
+  
+  function handleTumblerChange(evt) {
+    setTumbler(!tumbler);
+  }
 
   function handleSubmit(evt) {
     evt.preventDefault();
     getFilms(inputSearch);
     // handleGetMovies(inputSearch);
   }
-
-  useEffect(() => {
-    setInputSearch(filmsInputSearch);
-  }, [filmsTumbler, filmsInputSearch]);
+console.log(tumbler)
+  // useEffect(() => {
+  //   setInputSearch(filmsInputSearch);
+  // }, [tumbler, filmsInputSearch]);
 
   return (
     <form className="search-form" name="search" onSubmit={handleSubmit} noValidate>
@@ -47,14 +49,13 @@ const SearchForm = ({ handleGetMovies, handleTumblerChange, getFilms, filmsTumbl
           />
         </label>
         <button
-          // onClick={() => handleGetMovies(inputSearch)}
           className="search-form__button"
           type="submit"
           aria-label="Искать"
         />
       </div>
       <label className="search-form__checkbox" htmlFor="shorts">
-        <FilterCheckbox value={filmsTumbler} onChange={handleTumblerChange} />
+        <FilterCheckbox value={tumbler} onChange={handleTumblerChange} />
         <p className="search-form__text">Короткометражки</p>
       </label>
     </form>

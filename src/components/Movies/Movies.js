@@ -11,14 +11,13 @@ const Movies = ({ openPopup }) => {
   const [filmsSaved, setFilmsSaved] = useState(null);
   const [preloader, setPreloader] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const [filmsTumbler, setFilmsTumbler] = useState(localStorage.getItem('filmsTumbler'));
   const [filmsInputSearch, setFilmsInputSearch] = useState("");
   const [MoviesCount, setMoviesCount] = useState([]);
   const [filmsShowed, setFilmsShowed] = useState(null);
   const [filmsWithTumbler, setFilmsWithTumbler] = useState([]);
   const [filmsShowedWithTumbler, setFilmsShowedWithTumbler] = useState([]);
   const [allMovies, setAllMovies] = useState([]);
-  const [tumbler, setTumbler] = useState(localStorage.getItem('tumbler'));
+  const [tumbler, setTumbler] = useState(localStorage.getItem('tumbler') === 'true');
 
   useEffect(() => {
     setMoviesCount(getMoviesCount());
@@ -61,6 +60,12 @@ const Movies = ({ openPopup }) => {
   }
 
   async function getFilms(inputSearch) {
+    if (!inputSearch) {
+      setErrorText("Нужно ввести ключевое слово");
+      return;
+    }
+    setErrorText("");
+
     const allMoviesStorage = localStorage.getItem('allMovies');
     if (!allMoviesStorage) {
       setPreloader(true);
@@ -71,6 +76,12 @@ const Movies = ({ openPopup }) => {
         })
         .catch((err) => {
           console.log(err);
+          setErrorText(
+            "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
+          );
+        // setFilms([]);
+        // localStorage.removeItem("films");
+        // localStorage.removeItem("tumbler");
         })
     } else {
       const loadedMovies = JSON.parse(localStorage.getItem('allMoviesStorage'))
@@ -82,70 +93,51 @@ const Movies = ({ openPopup }) => {
       let filterData = dataSort.filter(({ nameRU }) =>
         nameRU.toLowerCase().includes(inputSearch.toLowerCase())
       );
-      localStorage.setItem("films", JSON.stringify(filterData));
-      localStorage.setItem("filmsInputSearch", inputSearch);
-      // localStorage.setItem("filmsTumbler", filmsTumbler);
 
+      if (tumbler) {
+        const filterDataTumbler = filterData.filter(({ duration }) => duration <= 40);
+        localStorage.setItem("films", JSON.stringify(filterDataTumbler));
+      } else {
+        localStorage.setItem("films", JSON.stringify(filterData));
+      }
       const spliceData = filterData.splice(0, MoviesCount[0]);
       setFilmsShowed(spliceData);
-      setFilms(filterData);
-      setFilmsShowedWithTumbler(spliceData);
       setFilmsWithTumbler(filterData);
+      setFilms(filterData);
+      localStorage.setItem("filmsInputSearch", inputSearch);
       setPreloader(false);
     },2000);
   }
 
-  async function handleGetMovies(inputSearch) {
-    if (!inputSearch) {
-      setErrorText("Нужно ввести ключевое слово");
-      return false;
-    }
-    setErrorText("");
-    setPreloader(true);
-
-      console.log('1', allMovies)
-
-
-
-
-      // setErrorText(
-      //   "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
-      // );
-      // setFilms([]);
-      // localStorage.removeItem("films");
-      // localStorage.removeItem("filmsTumbler");
-
-      // setPreloader(false);
-
-  }
-
-  function handleTumblerChange(evt) {
-      const newTumbler = !tumbler;
-      setTumbler(newTumbler);
-      handleGetMoviesTumbler(newTumbler);
-  }
-
   //ручка получения короткометражек.
-  async function handleGetMoviesTumbler(tumbler) {
+  async function handleGetMoviesTumbler() {
     let filterDataShowed = [];
     let filterData = [];
 
     if (tumbler) {
-      setFilmsShowedWithTumbler(filmsShowed);
-      setFilmsWithTumbler(films);
       filterDataShowed = filmsShowed.filter(({ duration }) => duration <= 40);
       filterData = films.filter(({ duration }) => duration <= 40);
+
+      localStorage.setItem("films", JSON.stringify(filterData));
+      
+      const spliceData = filterData.splice(0, MoviesCount[0]);
+      setFilmsShowed(spliceData);
+      setFilms(filterData);
+      
+
+
       localStorage.setItem('tumbler', tumbler);
-      localStorage.setItem('filmsTumbler', filmsTumbler);
     } else {
-      localStorage.removeItem('filmsTumbler');
-      localStorage.removeItem('tumbler');
       filterDataShowed = filmsShowedWithTumbler;
       filterData = filmsWithTumbler;
     }
     setFilmsShowed(filterDataShowed);
     setFilms(filterData);
   }
+
+  useEffect(() => {
+    handleGetMoviesTumbler();
+  }, [tumbler]);
 
   async function savedMoviesToggle(film, favorite) {
     if (favorite) {
@@ -204,14 +196,17 @@ const Movies = ({ openPopup }) => {
     }
   }, [openPopup]);
 
+  const handleSetTumbler = (actualTumbler) => {
+    localStorage.setItem('tumbler', actualTumbler);
+    setTumbler(actualTumbler)
+  }
+
   return (
     <div className="movies">
       <main>
         <SearchForm
-          handleTumblerChange={handleTumblerChange}
-          handleGetMovies={handleGetMovies}
-          filmsTumbler={filmsTumbler}
-          setFilmsTumbler={setFilmsTumbler}
+          tumbler={tumbler}
+          setTumbler={handleSetTumbler}
           getFilms={getFilms}
           filmsInputSearch={filmsInputSearch}
         />
