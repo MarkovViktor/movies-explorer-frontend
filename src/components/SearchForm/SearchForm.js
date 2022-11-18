@@ -1,18 +1,9 @@
 import './SearchForm.css';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
-import {
-  Route,
-  Switch,
-  useLocation,
-  useHistory,
-  withRouter,
-  Redirect,
-} from "react-router-dom";
 
 const SearchForm = ({ tumbler, setTumbler, getFilms, filmsTumbler, filmsInputSearch }) => {
   const [inputSearch, setInputSearch] = useState('');
-  const { path } = useLocation;
 
   function handleInputChange(evt) {
     setInputSearch(evt.target.value);
@@ -26,12 +17,7 @@ const SearchForm = ({ tumbler, setTumbler, getFilms, filmsTumbler, filmsInputSea
   function handleSubmit(evt) {
     evt.preventDefault();
     getFilms(inputSearch);
-    // handleGetMovies(inputSearch);
   }
-console.log(tumbler)
-  // useEffect(() => {
-  //   setInputSearch(filmsInputSearch);
-  // }, [tumbler, filmsInputSearch]);
 
   return (
     <form className="search-form" name="search" onSubmit={handleSubmit} noValidate>

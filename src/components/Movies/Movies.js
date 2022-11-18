@@ -12,52 +12,9 @@ const Movies = ({ openPopup }) => {
   const [preloader, setPreloader] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [filmsInputSearch, setFilmsInputSearch] = useState("");
-  const [MoviesCount, setMoviesCount] = useState([]);
-  const [filmsShowed, setFilmsShowed] = useState(null);
   const [filmsWithTumbler, setFilmsWithTumbler] = useState([]);
-  const [filmsShowedWithTumbler, setFilmsShowedWithTumbler] = useState([]);
   const [allMovies, setAllMovies] = useState([]);
   const [tumbler, setTumbler] = useState(localStorage.getItem('tumbler') === 'true');
-
-  useEffect(() => {
-    setMoviesCount(getMoviesCount());
-    const handlerResize = () => setMoviesCount(getMoviesCount());
-    window.addEventListener("resize", handlerResize);
-
-    return () => {
-      window.removeEventListener("resize", handlerResize);
-    };
-  }, []);
-
-  function getMoviesCount() {
-    let countCards;
-    const clientWidth = document.documentElement.clientWidth;
-    const MoviesCountConfig = {
-      1200: [12, 3],
-      900: [9, 3],
-      768: [8, 2],
-      240: [5, 2],
-    };
-
-    Object.keys(MoviesCountConfig)
-      .sort((a, b) => a - b)
-      .forEach((key) => {
-        if (clientWidth > +key) {
-          countCards = MoviesCountConfig[key];
-        }
-      });
-
-    return countCards;
-  }
-
-  function handleMore() {
-    const spliceFilms = films;
-    const newFilmsShowed = filmsShowed.concat(
-      spliceFilms.splice(0, MoviesCount[1])
-    );
-    setFilmsShowed(newFilmsShowed);
-    setFilms(spliceFilms);
-  }
 
   async function getFilms(inputSearch) {
     if (!inputSearch) {
@@ -79,9 +36,9 @@ const Movies = ({ openPopup }) => {
           setErrorText(
             "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
           );
-        // setFilms([]);
-        // localStorage.removeItem("films");
-        // localStorage.removeItem("tumbler");
+        setFilms([]);
+        localStorage.removeItem("films");
+        localStorage.removeItem("tumbler");
         })
     } else {
       const loadedMovies = JSON.parse(localStorage.getItem('allMoviesStorage'))
@@ -93,51 +50,30 @@ const Movies = ({ openPopup }) => {
       let filterData = dataSort.filter(({ nameRU }) =>
         nameRU.toLowerCase().includes(inputSearch.toLowerCase())
       );
+      localStorage.setItem("films", JSON.stringify(filterData));
+      setFilms(filterData);
 
       if (tumbler) {
         const filterDataTumbler = filterData.filter(({ duration }) => duration <= 40);
-        localStorage.setItem("films", JSON.stringify(filterDataTumbler));
-      } else {
-        localStorage.setItem("films", JSON.stringify(filterData));
+        setFilmsWithTumbler(filterDataTumbler)
       }
-      const spliceData = filterData.splice(0, MoviesCount[0]);
-      setFilmsShowed(spliceData);
-      setFilmsWithTumbler(filterData);
-      setFilms(filterData);
+      // const spliceData = filterData.splice(0, MoviesCount[0]);
+      // setFilmsShowed(spliceData);
+      // setFilmsWithTumbler(filterData);
       localStorage.setItem("filmsInputSearch", inputSearch);
       setPreloader(false);
-    },2000);
+    }, 2000);
   }
 
-  //ручка получения короткометражек.
-  async function handleGetMoviesTumbler() {
-    let filterDataShowed = [];
-    let filterData = [];
-
-    if (tumbler) {
-      filterDataShowed = filmsShowed.filter(({ duration }) => duration <= 40);
-      filterData = films.filter(({ duration }) => duration <= 40);
-
-      localStorage.setItem("films", JSON.stringify(filterData));
-      
-      const spliceData = filterData.splice(0, MoviesCount[0]);
-      setFilmsShowed(spliceData);
-      setFilms(filterData);
-      
-
-
-      localStorage.setItem('tumbler', tumbler);
+  const handleSetTumbler = (actualTumbler) => {
+    setTumbler(actualTumbler);
+    localStorage.setItem('tumbler', actualTumbler);
+    if (actualTumbler) {
+      setFilmsWithTumbler(films.filter(({ duration }) => duration <= 40));
     } else {
-      filterDataShowed = filmsShowedWithTumbler;
-      filterData = filmsWithTumbler;
+      return;
     }
-    setFilmsShowed(filterDataShowed);
-    setFilms(filterData);
   }
-
-  useEffect(() => {
-    handleGetMoviesTumbler();
-  }, [tumbler]);
 
   async function savedMoviesToggle(film, favorite) {
     if (favorite) {
@@ -184,7 +120,6 @@ const Movies = ({ openPopup }) => {
     const localStorageFilms = localStorage.getItem("films");
     if (localStorageFilms) {
       const filterData = JSON.parse(localStorageFilms);
-      setFilmsShowed(filterData.splice(0, getMoviesCount()[0]));
       setFilms(filterData);
       setPreloader(false);
     }
@@ -195,11 +130,6 @@ const Movies = ({ openPopup }) => {
       setFilmsInputSearch(localStorageFilmsInputSearch);
     }
   }, [openPopup]);
-
-  const handleSetTumbler = (actualTumbler) => {
-    localStorage.setItem('tumbler', actualTumbler);
-    setTumbler(actualTumbler)
-  }
 
   return (
     <div className="movies">
@@ -215,14 +145,12 @@ const Movies = ({ openPopup }) => {
         {!preloader &&
           !errorText &&
           films !== null &&
-          filmsSaved !== null &&
-          filmsShowed !== null && (
+          filmsSaved !== null && (
             <MoviesCardList
-              handleMore={handleMore}
               filmsRemains={films}
-              films={filmsShowed}
-              savedMoviesToggle={savedMoviesToggle}
               filmsSaved={filmsSaved}
+              films={tumbler ? filmsWithTumbler: films}
+              savedMoviesToggle={savedMoviesToggle}
             />
           )}
       </main>
