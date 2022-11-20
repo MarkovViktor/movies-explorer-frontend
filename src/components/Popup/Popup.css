@@ -43,7 +43,7 @@
   min-height: 22px;
   outline: none;
   border: none;
-  background: transparent url('../../images/close.svg') center center / cover no-repeat;
+  background: transparent url('../../images/icon-close.svg') center center / cover no-repeat;
   transition: opacity .2s linear;
 }
 

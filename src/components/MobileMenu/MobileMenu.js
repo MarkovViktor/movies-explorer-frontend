@@ -11,6 +11,7 @@ function MobileMenu({ isMenuOpen, handleBurgerClick }) {
     }
     handleBurgerClick();
   }
+
   return (
     <div className={isMenuOpen ? "mobile-menu__bg" : "mobile-menu__bg-active"}>
       <div className="mobile-menu">
@@ -22,8 +23,14 @@ function MobileMenu({ isMenuOpen, handleBurgerClick }) {
             onClick={handleBurgerClick}
           />
           <ul className="mobile-menu__list">
-            <li className="mobile-menu__item">
-              <NavLink exact to="/" className="mobile-menu__link" activeClassName="mobile-menu__link_active" onClick={handleClickLink} > 
+            <li className="mobile-menu__item mobile-menu__item_invisible">
+              <NavLink
+                exact
+                to="/"
+                className="mobile-menu__link"
+                activeClassName="mobile-menu__link_active"
+                onClick={handleClickLink}
+              >
                 Главная
               </NavLink>
             </li>
@@ -54,6 +61,7 @@ function MobileMenu({ isMenuOpen, handleBurgerClick }) {
             src={account}
             alt="иконка пользоввателя"
             className="mobile-menu__account-icon"
+            onClick={handleBurgerClick}
           />
         </Link>
       </div>

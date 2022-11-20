@@ -43,7 +43,7 @@
   font-weight: 400;
   font-style: normal;
   font-size: 11px;
-  line-height: 183x;
+  line-height: 18px;
   color: #a0a0a0;
 }
 
@@ -52,8 +52,8 @@
   height: 21px;
   background-position: top;
   background-repeat: no-repeat;
-  background-color: #FFFFFF;
   cursor: pointer;
+  background-color: #FFFFFF;
   border: none;
   border-radius: 50%;
 }
@@ -75,13 +75,13 @@
 }
 
 @media (max-width: 800px) {
+  .movies-card__list {
+    max-width: 320px;
+  }
+
   .movies-card__image {
     width: 339px;
     height: 190px;
-  }
-
-  .movies-card__list {
-    min-width: 320px;
   }
 }
 

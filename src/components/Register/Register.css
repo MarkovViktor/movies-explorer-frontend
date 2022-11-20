@@ -61,7 +61,7 @@
   color: #000;
   border: none;
   border-radius: 8px;
-  background-color: #F9F9F9;
+  border-bottom: 1px solid #e8e8e8;
 }
 
 .register__form-input_err {

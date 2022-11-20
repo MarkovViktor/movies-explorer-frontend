@@ -1,86 +1,78 @@
-/* eslint-disable eqeqeq */
 import "./MoviesCard.css";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const MoviesCard = ({ film, savedMoviesToggle, filmsSaved }) => {
-  const { pathname } = useLocation();
-  const [favorite, setFavorite] = useState(false);
+const Card = (props) => {
+  const [isSaved, setSavedCard] = useState(false);
+  const [movieId, setMovieId] = useState("");
 
-  function handleFavoriteToogle() {
-    const newFavorite = !favorite;
-    const savedFilm = filmsSaved.filter((obj) => {
-      return obj.movieId == film.id;
-    });
-    savedMoviesToggle(
-      { ...film, _id: savedFilm.length > 0 ? savedFilm[0]._id : null },
-      newFavorite
-    );
-  }
-
-  function handleFavoriteDelete() {
-    savedMoviesToggle(film, false);
-  }
-
-  function getMovieDuration(mins) {
-    return `${Math.floor(mins / 60)}ч ${mins % 60}м`;
-  }
+  const path = useLocation();
 
   useEffect(() => {
-    if (pathname !== "/saved-movies") {
-      const savedFilm = filmsSaved.filter((obj) => {
-        return obj.movieId == film.id;
-      });
-
-      if (savedFilm.length > 0) {
-        setFavorite(true);
-      } else {
-        setFavorite(false);
+    // eslint-disable-next-line array-callback-return
+    props.userSavedMovies.map((c) => {
+      if (c.movieId === props.movies.id || props.movies.movieId) {
+        setSavedCard(true);
+        setMovieId(c._id);
       }
+    });
+  }, [props.userSavedMovies, props.movies.id, props.movies.movieId]);
+
+  function saveMovie() {
+    if (!isSaved) {
+      props.handleSaveMovie(props.movies, setMovieId);
+    } else if (isSaved) {
+      props.handleMovieDelete(props.movies._id || movieId);
+      setSavedCard(false);
     }
-  }, [pathname, filmsSaved, film.id]);
+  }
+  function handleLikeClick() {
+    saveMovie();
+    setSavedCard(!isSaved)
+  }
 
   return (
     <li className="movies-card">
-      <a
-        href={pathname === "/saved-movies" ? film.trailerLink : film.trailerLink}
-        target="blank"
-        rel="noreferrer"
-      >
+      <a href={props.movies.trailerLink} target="blank" rel="noreferrer">
         <img
           className="movies-card__image"
           src={
-            pathname === "/saved-movies"
-              ? `${film.image}`
-              : `https://api.nomoreparties.co${film.image.url}`
+            path.pathname === "/movies"
+              ? `https://api.nomoreparties.co${props.movies.image.url}`
+              : `${props.movies.image}`
           }
-          alt={film.nameRU}
+          alt={props.movies.nameRU}
         />
       </a>
       <div className="movies-card__list">
-        <h3 className="movies-card__heading">{film.nameRU}</h3>
-
-        {pathname === "/saved-movies" ? (
+        <h3 className="movies-card__heading">{props.movies.nameRU}</h3>
+        {path.pathname === "/saved-movies" ? (
           <button
             type="button"
             className="movies-card__save-button movies-card__save-button_delete"
-            onClick={handleFavoriteDelete}
+            onClick={handleLikeClick}
           />
         ) : (
           <button
             type="button"
             className={
-              favorite
+              isSaved
                 ? "movies-card__save-button movies-card__save-button_active"
                 : "movies-card__save-button movies-card__save-button_deactive"
             }
-            onClick={handleFavoriteToogle}
+            onClick={handleLikeClick}
           />
         )}
       </div>
-      <p className="movies-card__duration">{getMovieDuration(film.duration)}</p>
+      <p className="movies-card__duration">
+        {props.movies.duration > 60
+          ? `${parseInt(props.movies.duration / 60)}ч ${
+              props.movies.duration % 60
+            }м`
+          : `${props.movies.duration}м`}
+      </p>
     </li>
   );
 };
 
-export default MoviesCard;
+export default Card;

@@ -1,7 +1,7 @@
 import React from "react";
 import HeaderAbout from "../HeaderAbout/HeaderAbout";
 import "./AboutMe.css";
-import photo from "../../images/photo.png";
+import me from "../../images/me.png";
 
 function AboutMe() {
   return (
@@ -12,7 +12,7 @@ function AboutMe() {
           <h2 className="about-me__header">Виктор</h2>
           <h3 className="about-me__subtext">Фронтенд-разработчик, 28 лет</h3>
           <p className="about-me__biograf">
-            Родился в Перми, живу в Геленджике. Закончил ПНИПУ по специальности 
+          Родился в Перми, живу в Геленджике. Закончил ПНИПУ по специальности 
             прикладная информатика в экономике. У меня есть жена. Планирую сделать
              кодинг своей специальностью, иду к этой цели. 
           </p>
@@ -25,7 +25,7 @@ function AboutMe() {
             Github
           </a>
         </div>
-        <img className="about-me__img" src={photo} alt="Фото" />
+        <img className="about-me__img" src={me} alt="Фотография" />
       </div>
     </section>
   );

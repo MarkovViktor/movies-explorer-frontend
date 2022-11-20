@@ -1,6 +1,6 @@
 class Token {
   constructor() {
-    this.key = 'jwt';
+    this.key = "jwt";
   }
 
   getToken() {

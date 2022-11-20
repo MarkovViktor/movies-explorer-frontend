@@ -3,7 +3,7 @@ import "./Register.css";
 import { Link } from "react-router-dom";
 import logo from "../../images/logo-header.svg";
 
-function Register({onRegister} ) {
+function Register({ onRegister, isLoading }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +24,9 @@ function Register({onRegister} ) {
       setNameError("Длина имени должна должна быть не более 30 символов");
       setNameErrorBool(false);
     } else if (!validName) {
-      setNameError("Имя должно содержать латиницу, кириллицу, пробел или дефис");
+      setNameError(
+        "Имя должно содержать латиницу, кириллицу, пробел или дефис"
+      );
       setNameErrorBool(false);
     } else {
       setNameError("");
@@ -61,10 +63,7 @@ function Register({onRegister} ) {
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    console.log(name);
-    console.log(email);
-    console.log(password);
-    onRegister({name, email, password});
+    onRegister({ name, email, password });
   };
 
   useEffect(() => {
@@ -105,7 +104,7 @@ function Register({onRegister} ) {
             name="name"
             type="text"
             placeholder="Ваше имя"
-            value={name || ''}
+            value={name || ""}
             onChange={handleChangeName}
             required
           />
@@ -123,7 +122,7 @@ function Register({onRegister} ) {
                 : "register__form-input  register__form-input_err"
             }
             type="email"
-            value={email || ''}
+            value={email || ""}
             placeholder="Email"
             onChange={handleChangeEmail}
             required
@@ -141,7 +140,7 @@ function Register({onRegister} ) {
                 ? "register__form-input"
                 : "register__form-input  register__form-input_err"
             }
-            value={password || ''}
+            value={password || ""}
             type="password"
             placeholder="Пароль"
             onChange={handleChangePassword}
@@ -152,7 +151,7 @@ function Register({onRegister} ) {
           </span>
           <button
             type="submit"
-            disabled={!formValid}
+            disabled={!formValid || isLoading}
             className={
               formValid
                 ? "register__form-submit"

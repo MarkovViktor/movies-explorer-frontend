@@ -1,7 +1,7 @@
 import { MAIN_API_URL } from "./constants";
 
 class MainApi {
-  constructor({baseUrl, headers}) {
+  constructor({ baseUrl, headers }) {
     this._baseUrl = baseUrl;
     this._headers = headers;
   }
@@ -16,44 +16,48 @@ class MainApi {
   registerUser({ name, email, password }) {
     return fetch(`${this._baseUrl}/signup`, {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ name, email, password }),
     }).then(this._checkResponse);
   }
 
-  loginUser = ( email, password ) => {
+  loginUser = (email, password) => {
     return fetch(`${this._baseUrl}/signin`, {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify( email, password ),
+      body: JSON.stringify({ email, password }),
+    }).then(this._checkResponse);
+  };
+
+  logout() {
+    return fetch(`${this._baseUrl}/signout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     }).then(this._checkResponse);
   }
 
   getToken(token) {
     return fetch(`${this._baseUrl}/users/me`, {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }).then(this._checkResponse);
   }
 
-  updateToken() {
-    this._headers.Authorization = `Bearer ${localStorage.getItem('jwt')}`;
-  }
-
-  getUser() {
+  getUserInfo() {
     return fetch(`${this._baseUrl}/users/me`, {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
       headers: this._headers,
     }).then(this._checkResponse);
   }
@@ -61,7 +65,7 @@ class MainApi {
   updateUserInfo(data) {
     return fetch(`${this._baseUrl}/users/me`, {
       method: "PATCH",
-      credentials: 'include',
+      credentials: "include",
       headers: this._headers,
       body: JSON.stringify({
         name: data.name,
@@ -70,27 +74,43 @@ class MainApi {
     }).then(this._checkResponse);
   }
 
+  updateToken() {
+    this._headers.Authorization = `Bearer ${localStorage.getItem("jwt")}`;
+  }
+
   getMovies() {
     return fetch(`${this._baseUrl}/movies`, {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
       headers: this._headers,
     }).then(this._checkResponse);
   }
 
-  addMovies(data) {
+  saveMovie(movie) {
     return fetch(`${this._baseUrl}/movies`, {
       method: "POST",
-      credentials: 'include',
       headers: this._headers,
-      body: JSON.stringify(data),
+      credentials: "include",
+      body: JSON.stringify({
+        country: movie.country,
+        director: movie.director,
+        duration: movie.duration,
+        year: movie.year,
+        description: movie.description,
+        image: `https://api.nomoreparties.co/${movie.image.url}`,
+        trailerLink: movie.trailerLink,
+        thumbnail: `https://api.nomoreparties.co/${movie.image.formats.thumbnail.url}`,
+        movieId: movie.id,
+        nameRU: movie.nameRU,
+        nameEN: movie.nameEN,
+      }),
     }).then(this._checkResponse);
   }
 
-  deleteMovies(movieId) {
+  deleteMovie(movieId) {
     return fetch(`${this._baseUrl}/movies/${movieId}`, {
       method: "DELETE",
-      credentials: 'include',
+      credentials: "include",
       headers: this._headers,
     }).then(this._checkResponse);
   }
@@ -99,8 +119,8 @@ class MainApi {
 const mainApi = new MainApi({
   baseUrl: MAIN_API_URL,
   headers: {
-    'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
-    'Content-Type': 'application/json; charset=utf-8',
+    Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+    "Content-Type": "application/json",
   },
 });
 

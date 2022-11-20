@@ -4,7 +4,7 @@ import "./Promo.css";
 
 function Promo() {
   return (
-    <section className="promo">
+    <div className="promo">
       <div className="promo__pr">
         <div className="promo__bl">
           <h1 className="promo__text">
@@ -17,7 +17,7 @@ function Promo() {
         <img
           src={promo}
           className="promo__img"
-          alt="Рисунок планеты"
+          alt="Рисунок цифровой планеты"
         />
       </div>
       <nav className="promo__nav">
@@ -25,7 +25,7 @@ function Promo() {
           Узнать больше
         </a>
       </nav>
-    </section>
+    </div>
   );
 }
 

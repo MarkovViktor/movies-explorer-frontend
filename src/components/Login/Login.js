@@ -3,7 +3,7 @@ import "../Register/Register.css";
 import { Link } from "react-router-dom";
 import logo from "../../images/logo-header.svg";
 
-function Login({onLogin}) {
+function Login({ onLogin, isLoading }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -42,7 +42,7 @@ function Login({onLogin}) {
     evt.preventDefault();
     console.log(password);
     console.log(email);
-    onLogin({email, password});
+    onLogin({ email, password });
   };
 
   useEffect(() => {
@@ -74,7 +74,7 @@ function Login({onLogin}) {
                 : "register__form-input  register__form-input_err"
             }
             type="email"
-            value={email || ''}
+            value={email || ""}
             placeholder="Email"
             onChange={handleChangeEmail}
             required
@@ -92,7 +92,7 @@ function Login({onLogin}) {
                 ? "register__form-input"
                 : "register__form-input  register__form-input_err"
             }
-            value={password || ''}
+            value={password || ""}
             type="password"
             placeholder="Пароль"
             onChange={handleChangePassword}
@@ -102,9 +102,9 @@ function Login({onLogin}) {
             {passwordError}
           </span>
           <button
-            disabled={!formValid}
+            disabled={!formValid || isLoading}
             className={
-              formValid
+              formValid 
                 ? "register__form-submit"
                 : "register__form-submit  register__form-submit_disabled"
             }

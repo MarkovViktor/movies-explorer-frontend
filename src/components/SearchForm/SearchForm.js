@@ -1,26 +1,30 @@
-import './SearchForm.css';
-import { useState } from 'react';
-import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
+import { React } from "react";
+import "./SearchForm.css";
+import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
+import { useLocation } from 'react-router-dom';
 
-const SearchForm = ({ tumbler, setTumbler, getFilms, filmsTumbler, filmsInputSearch }) => {
-  const [inputSearch, setInputSearch] = useState('');
-
-  function handleInputChange(evt) {
-    setInputSearch(evt.target.value);
+function SearchForm({
+  searchMoviesHandler,
+  handleCheckbox,
+  getMovies,
+  checkBoxActive,
+  searchInput,
+  checkBoxActiveSaveFilms,
+  tokenCheck,
+}) {
+  function onSubmitForm(event) {
+    event.preventDefault();
+    
   }
-
-  
-  function handleTumblerChange(evt) {
-    setTumbler(!tumbler);
-  }
-
-  function handleSubmit(evt) {
-    evt.preventDefault();
-    getFilms(inputSearch);
-  }
-
+  const { pathname } = useLocation();
   return (
-    <form className="search-form" name="search" onSubmit={handleSubmit} noValidate>
+    <form
+      className="search-form"
+      name="search"
+      onSubmit={onSubmitForm}
+      onClick={tokenCheck}
+      noValidate
+    >
       <div className="search-form__container">
         <label className="search-form__label" htmlFor="search-query">
           <input
@@ -29,8 +33,8 @@ const SearchForm = ({ tumbler, setTumbler, getFilms, filmsTumbler, filmsInputSea
             name="search-query"
             type="text"
             placeholder="Фильм"
-            onChange={handleInputChange}
-            value={inputSearch || ''}
+            onChange={searchMoviesHandler}
+            value={searchInput || ""}
             required
           />
         </label>
@@ -38,10 +42,18 @@ const SearchForm = ({ tumbler, setTumbler, getFilms, filmsTumbler, filmsInputSea
           className="search-form__button"
           type="submit"
           aria-label="Искать"
+          onClick={getMovies}
         />
       </div>
       <label className="search-form__checkbox" htmlFor="shorts">
-        <FilterCheckbox value={tumbler} onChange={handleTumblerChange} />
+      {pathname === "/movies" ?
+        (<FilterCheckbox
+          handleCheckbox={handleCheckbox}
+          checkBoxActive={checkBoxActive}
+        />) : <FilterCheckbox
+        handleCheckbox={handleCheckbox}
+        checkBoxActive={checkBoxActiveSaveFilms}
+      />}
         <p className="search-form__text">Короткометражки</p>
       </label>
     </form>

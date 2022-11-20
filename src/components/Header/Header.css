@@ -38,6 +38,11 @@
   font-family: 'inter';
 }
 
+.header__link_active {
+  padding-bottom: 4px;
+  border-bottom: solid 2px black;
+}
+
 .header__nav-item {
   list-style: none;
   padding-top: 7px;
@@ -149,13 +154,7 @@
   }
 }
 
-@media screen and ( max-width: 840px ) {
-  .header__login {
-    gap: 250px;
-  }
-}
-
-@media screen and ( max-width: 800px ) {
+@media screen and ( max-width: 845px ) {
   .header__login-open {
     display: block;
     cursor: pointer;
@@ -169,6 +168,7 @@
   
   .header__login {
     display: none;
+    gap: 250px;
   }
 
   .header {

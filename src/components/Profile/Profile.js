@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { CurrentUserContext } from '../../contexts/CurrentUserContext';
-//import Header from "../Header/Header";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import "./Profile.css";
 import { Link } from "react-router-dom";
-import mainApi from '../../utils/MainApi';
+import mainApi from "../../utils/MainApi";
 
 function Profile({ onSignOut, openPopup }) {
-
-  const [inputValues, setInputValues] = useState({});
   const currentUser = useContext(CurrentUserContext);
   const [name, setName] = useState(currentUser.name);
   const [email, setEmail] = useState(currentUser.email);
@@ -16,7 +13,6 @@ function Profile({ onSignOut, openPopup }) {
   const [emailError, setEmailError] = useState("");
   const [emailErrorBool, setEmailErrorBool] = useState(true);
   const [formValid, setFormValid] = useState(false);
-
   const handleChangeName = (evt) => {
     const validName = /^[а-яА-ЯёЁa-zA-Z0-9 -]+$/.test(evt.target.value);
     if (evt.target.value.length < 2) {
@@ -26,12 +22,13 @@ function Profile({ onSignOut, openPopup }) {
       setNameError("Длина имени должна должна быть не более 30 символов");
       setNameErrorBool(false);
     } else if (!validName) {
-      setNameError("Имя должно содержать латиницу, кириллицу, пробел или дефис");
+      setNameError(
+        "Имя должно содержать латиницу, кириллицу, пробел или дефис"
+      );
       setNameErrorBool(false);
     } else {
       setNameError("");
       setNameErrorBool(true);
-      setInputValues({ ...inputValues, [name]: evt.target.value });
     }
     setName(evt.target.value);
   };
@@ -47,32 +44,48 @@ function Profile({ onSignOut, openPopup }) {
     } else {
       setEmailError("");
       setEmailErrorBool(true);
-      setInputValues({ ...inputValues, [email]: evt.target.value });
     }
     setEmail(evt.target.value);
   };
-
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    mainApi.updateUserInfo({ name, email }).then(() => {
-      setName(name);
-      setEmail(email);
-      openPopup('Данные успешно изменены!');
-    })
-    .catch((err) => {
-      openPopup(`Что-то пошло не так! ${err}`);
-    });
+    mainApi
+      .updateUserInfo({ name, email })
+      .then((res) => {
+
+        setName(name);
+        setEmail(email);
+        currentUser.name = name;
+        currentUser.email = email;
+        openPopup("Данные успешно изменены!");
+        setFormValid(false);
+
+      })
+      .catch((err) => {
+        openPopup(`Что-то пошло не так! ${err}`);
+      })
   };
+  useEffect(()=>{
+      mainApi.getUserInfo()
+      .then(() => {
+        setName(name);
+        setEmail(email);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+    },[])
 
   useEffect(() => {
-    if (name && email && !nameError && !emailError) {
+    if (name && email && !nameError && !emailError && (name !== currentUser.name || email !== currentUser.email)) {
       setFormValid(true);
     } else {
       setFormValid(false);
     }
-  }, [name, email, nameError, emailError]);
+  }, [name, email, nameError, emailError, currentUser.name, currentUser.email]);
 
   return (
+    <CurrentUserContext.Provider value={currentUser}>
     <>
       <div className="profile">
         <main>
@@ -93,7 +106,7 @@ function Profile({ onSignOut, openPopup }) {
                       : "profile__form-input profile__form-input_err"
                   }
                   placeholder="Имя"
-                  value={name || inputValues.name}
+                  value={name || ''}
                   onChange={handleChangeName}
                   required
                 />
@@ -111,7 +124,7 @@ function Profile({ onSignOut, openPopup }) {
                   id="email"
                   name="email"
                   type="email"
-                  value={email || inputValues.email}
+                  value={email || ''}
                   onChange={handleChangeEmail}
                   className={
                     emailErrorBool
@@ -130,6 +143,7 @@ function Profile({ onSignOut, openPopup }) {
               <button
                 type="submit"
                 disabled={!formValid}
+                onClick={handleSubmit}
                 className={
                   formValid
                     ? "profile__edit"
@@ -146,6 +160,7 @@ function Profile({ onSignOut, openPopup }) {
         </main>
       </div>
     </>
+    </CurrentUserContext.Provider>
   );
 }
 

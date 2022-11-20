@@ -1,142 +1,126 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import "./MoviesCardList.css";
 import MoviesCard from "../MoviesCard/MoviesCard";
+import Preloader from "../Preloader/Preloader";
+import useMediaQuery from "../../hooks/useMediaQuery";
+import {
+  NUMBER_OF_DESKTOP,
+  NUMBER_OF_TABLET,
+  NUMBER_OF_MOBILE,
+  WIDTH_OF_DESKTOP,
+  WIDTH_OF_TABLET,
+  WIDTH_OF_MOBILE,
+  ADD_OF_DESKTOP,
+  ADD_OF_TABLET_OR_MOBILE,
+} from "../../utils/constants";
 
 const MoviesCardList = ({
-  films,
-  savedMoviesToggle,
-  filmsSaved,
-  filmsRemains,
-  handleMore,
+  searchedMovies,
+  userSavedMovies,
+  handleSaveMovie,
+  handleMovieDelete,
+  isLoading,
 }) => {
-  const { pathname } = useLocation();
+  const [cardsCount, setCardsCount] = useState(NUMBER_OF_DESKTOP); 
+  const [movieList, setMovieList] = useState([]); 
+  const [foundError, setFoundError] = useState("");
+  const isDesktop = useMediaQuery(WIDTH_OF_DESKTOP);
+  const isTablet = useMediaQuery(WIDTH_OF_TABLET);
+  const isMobile = useMediaQuery(WIDTH_OF_MOBILE);
 
+  function mediaQueryHooks() {
+    if (isDesktop && !isMobile && !isTablet) {
+      setCardsCount(NUMBER_OF_DESKTOP);
+    } else if (isTablet && !isMobile) {
+      setCardsCount(NUMBER_OF_TABLET);
+    } else if (isMobile) {
+      setCardsCount(NUMBER_OF_MOBILE);
+    }
+  }
+
+  useEffect(() => {
+    onResize();
+    return () => offResize();
+  });
+
+  function onResize() {
+    window.addEventListener("resize", mediaQueryHooks);
+  }
+
+  function offResize() {
+    window.removeEventListener("resize", mediaQueryHooks);
+  }
+
+  useEffect(() => {
+    setMovieList(searchedMovies.slice(0, cardsCount));
+    setFoundError("");
+    if (searchedMovies.length === 0) {
+      checkMovies();
+      function checkMovies() {
+        if (movieList.length === 0) {
+          setFoundError("Ничего не найдено");
+        } else if (movieList.length > 0) {
+          setFoundError("");
+        }
+      }
+    }
+    if (!localStorage.getItem("allMovies")) {
+      setFoundError("");
+    }
+  }, [cardsCount, searchedMovies, setMovieList, movieList.length]);
+
+  function handleAddMoreCards() {
+    if (isDesktop && !isMobile && !isTablet) {
+      setCardsCount(cardsCount + ADD_OF_DESKTOP);
+    } else if (isTablet && !isMobile) {
+      setCardsCount(cardsCount + ADD_OF_TABLET_OR_MOBILE);
+    } else if (isMobile) {
+      setCardsCount(cardsCount + ADD_OF_TABLET_OR_MOBILE);
+    }
+  }
   return (
-    <section className="movies-card">
-      {films.length > 0 ? (
-        <ul className="movies-card__item">
-          {films.map((film) => (
-            <MoviesCard
-              key={film.id || film.movieId}
-              film={film}
-              savedMoviesToggle={savedMoviesToggle}
-              filmsSaved={filmsSaved}
-            />
-          ))}
-        </ul>
+    <section className="movies-card-list">
+      <span className="movies-card__foundError">{foundError}</span>
+      {isLoading ? (
+        <Preloader />
       ) : (
-        <div className="movies-card__text">Ничего не найдено</div>
+        <ul className="movies-card__item">
+          {movieList.map((movies) => {
+            return (
+              <MoviesCard
+                userSavedMovies={userSavedMovies}
+                handleSaveMovie={handleSaveMovie}
+                handleMovieDelete={handleMovieDelete}
+                movies={movies}
+                key={movies.id || movies._id}
+              />
+            );
+          })}
+        </ul>
       )}
 
-      {filmsRemains.length > 0 && pathname !== "/saved-movies" && (
-        <div className="movies-card__button-container">
-          <button
-            className="movies-card__button"
-            type="button"
-            name="more"
-            onClick={handleMore}
-          >
-            Ещё
-          </button>
-        </div>
+      {!isLoading ? (
+        <>
+          {searchedMovies.length !== movieList.length ? (
+            <div className="movies-card__button-container">
+              <button
+                className="movies-card__button"
+                type="button"
+                name="more"
+                onClick={handleAddMoreCards}
+              >
+                Ещё
+              </button>
+            </div>
+          ) : (
+            ""
+          )}
+        </>
+      ) : (
+        ""
       )}
     </section>
   );
 };
 
 export default MoviesCardList;
-
-
-// import React from "react";
-// import { useState, useEffect } from "react";
-// import { useLocation } from "react-router-dom";
-// import "./MoviesCardList.css";
-// import MoviesCard from "../MoviesCard/MoviesCard";
-
-// const MoviesCardList = ({
-//   films,
-//   savedMoviesToggle,
-//   filmsSaved,
-//   filmsRemains,
-// }) => {
-//   const { pathname } = useLocation();
-  
-//   const [MoviesCount, setMoviesCount] = useState([]);
-//   const [filmsShowed, setFilmsShowed] = useState([]);
-  
-//   useEffect(() => {
-    
-//     let countCards;
-//     const clientWidth = document.documentElement.clientWidth;
-//     const MoviesCountConfig = {
-//       1200: [12, 3],
-//       900: [9, 3],
-//       768: [8, 2],
-//       240: [5, 2],
-//     };
-
-//     Object.keys(MoviesCountConfig)
-//       .sort((a, b) => a - b)
-//       .forEach((key) => {
-//         if (clientWidth > +key) {
-//           countCards = MoviesCountConfig[key];
-//         }
-//       });
-
-//     console.log('countCards', countCards);
-//     setMoviesCount(countCards);
-//     console.log('MoviesCount', MoviesCount);
-//     setFilmsShowed(films.slice(0, MoviesCount[0]))
-//     console.log('filmsShowed', filmsShowed);
-
-//     // const handlerResize = () => setMoviesCount(getMoviesCount());
-//     // window.addEventListener("resize", handlerResize);
-
-//     // return () => {
-//     //   window.removeEventListener("resize", handlerResize);
-//     // };
-//   }, []);
-
-//   function handleMore() {
-//     const newFilmsShowed = filmsShowed.concat(
-//       films.splice(0, MoviesCount[1])
-//     );
-//     setFilmsShowed(newFilmsShowed);
-//     // setFilms(spliceFilms);
-//   }
-
-//   return (
-//     <section className="movies-card">
-//       {films.length > 0 ? (
-//         <ul className="movies-card__item">
-//           {filmsShowed.map((film) => (
-//             <MoviesCard
-//               key={film.id || film.movieId}
-//               film={film}
-//               savedMoviesToggle={savedMoviesToggle}
-//               filmsSaved={filmsSaved}
-//             />
-//           ))}
-//         </ul>
-//       ) : (
-//         <div className="movies-card__text">Ничего не найдено</div>
-//       )}
-
-//       {filmsRemains.length > 0 && pathname !== "/saved-movies" && (
-//         <div className="movies-card__button-container">
-//           <button
-//             className="movies-card__button"
-//             type="button"
-//             name="more"
-//             onClick={handleMore}
-//           >
-//             Ещё
-//           </button>
-//         </div>
-//       )}
-//     </section>
-//   );
-// };
-
-// export default MoviesCardList;
