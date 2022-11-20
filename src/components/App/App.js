@@ -19,7 +19,7 @@ import Register from "../Register/Register";
 import Login from "../Login/Login";
 import Profile from "../Profile/Profile";
 import NotFound from "../NotFound/NotFound";
-import Popup from "../Popup/popup";
+import Popup from "../Popup/Popup";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import MoviesApi from "../../utils/MoviesApi";
 import Preloader from "../Preloader/Preloader";
