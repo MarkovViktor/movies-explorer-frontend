@@ -1,21 +1,30 @@
-import React, { useState } from "react";
+import { React } from "react";
 import "./SearchForm.css";
 import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
+import { useLocation } from 'react-router-dom';
 
-function SearchForm({ handleSearch }) {
-  const [inputValue, setInputValue] = useState("");
-  const [shorts, setShorts] = useState(false);
-
-  const handleInput = (evt) => {
-    setInputValue(evt.target.value);
-  };
-
-  const handleSwitcher = () => {
-    setShorts(!shorts);
-  };
-
+function SearchForm({
+  searchMoviesHandler,
+  handleCheckbox,
+  getMovies,
+  checkBoxActive,
+  searchInput,
+  checkBoxActiveSaveFilms,
+  tokenCheck,
+}) {
+  function onSubmitForm(event) {
+    event.preventDefault();
+    
+  }
+  const { pathname } = useLocation();
   return (
-    <form className="search-form" name="search" noValidate>
+    <form
+      className="search-form"
+      name="search"
+      onSubmit={onSubmitForm}
+      onClick={tokenCheck}
+      noValidate
+    >
       <div className="search-form__container">
         <label className="search-form__label" htmlFor="search-query">
           <input
@@ -24,19 +33,27 @@ function SearchForm({ handleSearch }) {
             name="search-query"
             type="text"
             placeholder="Фильм"
-            onChange={handleInput}
-            value={inputValue}
+            onChange={searchMoviesHandler}
+            value={searchInput || ""}
             required
           />
-          <button
+        </label>
+        <button
           className="search-form__button"
           type="submit"
           aria-label="Искать"
-          />
-        </label>
+          onClick={getMovies}
+        />
       </div>
       <label className="search-form__checkbox" htmlFor="shorts">
-        <FilterCheckbox value={shorts} onChange={handleSwitcher} />
+      {pathname === "/movies" ?
+        (<FilterCheckbox
+          handleCheckbox={handleCheckbox}
+          checkBoxActive={checkBoxActive}
+        />) : <FilterCheckbox
+        handleCheckbox={handleCheckbox}
+        checkBoxActive={checkBoxActiveSaveFilms}
+      />}
         <p className="search-form__text">Короткометражки</p>
       </label>
     </form>

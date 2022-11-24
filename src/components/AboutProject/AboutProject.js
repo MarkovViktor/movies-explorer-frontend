@@ -4,7 +4,7 @@ import HeaderAbout from "../HeaderAbout/HeaderAbout";
 
 function AboutProject() {
   return (
-    <section className="about" id="about">
+    <div className="about" id="about">
       <HeaderAbout text="О проекте" />
       <div className="about__content">
         <div className="about__content-text">
@@ -38,7 +38,7 @@ function AboutProject() {
           <p className="about__time-paragraph">Front-end</p>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

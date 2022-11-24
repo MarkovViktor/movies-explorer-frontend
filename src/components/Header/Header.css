@@ -9,7 +9,7 @@
 .header__main {
   display: flex;
   justify-content: space-between;
-  padding: 18px 70px;
+  padding: 18px 20px;
   background-color: #FFFFFF;
   gap: 44px;
 }
@@ -35,6 +35,12 @@
   padding: 0;
   display: flex;
   gap: 20px;
+  font-family: 'inter';
+}
+
+.header__link_active {
+  padding-bottom: 4px;
+  border-bottom: solid 2px black;
 }
 
 .header__nav-item {
@@ -148,13 +154,7 @@
   }
 }
 
-@media screen and ( max-width: 840px ) {
-  .header__login {
-    gap: 250px;
-  }
-}
-
-@media screen and ( max-width: 800px ) {
+@media screen and ( max-width: 845px ) {
   .header__login-open {
     display: block;
     cursor: pointer;
@@ -168,6 +168,7 @@
   
   .header__login {
     display: none;
+    gap: 250px;
   }
 
   .header {

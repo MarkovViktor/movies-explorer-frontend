@@ -19,8 +19,8 @@
 }
 
 .movies-card__image {
-  width: 270px;
-  height: 151px;
+  width: 100%;
+  height: 200px;
   object-fit: cover;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 400;
   font-style: normal;
   font-size: 11px;
-  line-height: 183x;
+  line-height: 18px;
   color: #a0a0a0;
 }
 
@@ -52,8 +52,8 @@
   height: 21px;
   background-position: top;
   background-repeat: no-repeat;
-  background-color: #FFFFFF;
   cursor: pointer;
+  background-color: #FFFFFF;
   border: none;
   border-radius: 50%;
 }
@@ -74,34 +74,18 @@
   background-image: url("../../images/save-heard-deelete.svg");
 }
 
-@media (max-width: 1279px) {
-
-  .movies-card {
-    max-width: 270px;
-  }
-}  
-
-@media (max-width: 1012px) {
-
-  .movies-card {
-    max-width: 339px;
+@media (max-width: 800px) {
+  .movies-card__list {
+    max-width: 320px;
   }
 
   .movies-card__image {
     width: 339px;
     height: 190px;
   }
-
-  .movies-card__list {
-    min-width: 320px;
-  }
 }
 
 @media (max-width: 767px) {
-  .movies-card {
-    max-width: 300px;
-  }
-
   .movies-card__image {
     width: 300px;
     height: 168px;

@@ -6,17 +6,18 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import MobileMenu from "../MobileMenu/MobileMenu";
 import "./Header.css";
 
-function Header({ loggedIn }) {
+function Header({ loggedIn, tokenCheck }) {
   const path = useLocation();
   const headerBackground = () => path.pathname === '/' ? 'header' : 'header__main';
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   function handleBurgerClick() {
     setIsMenuOpen(!isMenuOpen);
+    tokenCheck();
   }
   return (
     <header className={headerBackground()}>
       <Link to="/">
-        <img src={logo} alt="Логотип" className="header__logo" />
+        <img src={logo} alt="Логотип" className="header__logo" onClick={tokenCheck}/>
       </Link>
       {loggedIn ? (
         <div className="header__block">
@@ -29,18 +30,18 @@ function Header({ loggedIn }) {
           <nav className="header__login">
             <ul className="header__nav-login">
               <li className="header__nav-item">
-                <NavLink to="/movies" className="header__nav-link">
+                <NavLink to="/movies" className="header__nav-link" activeClassName='header__link_active' onClick={tokenCheck}>
                   Фильмы
                 </NavLink>
               </li>
               <li className="header__nav-item">
-                <NavLink to="/saved-movies" className="header__nav-link">
+                <NavLink to="/saved-movies" className="header__nav-link" activeClassName='header__link_active' onClick={tokenCheck}>
                   Сохраненные&nbsp;фильмы
                 </NavLink>
               </li>
             </ul>
             <div>
-              <Link to="/profile" className="header__profile">
+              <Link to="/profile" className="header__profile" onClick={tokenCheck}>
                 <img
                   src={account}
                   alt="иконка пользователя"
